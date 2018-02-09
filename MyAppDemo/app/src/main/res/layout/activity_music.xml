@@ -1,0 +1,106 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/song_info"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:padding="5dp">
+
+        <TextView
+            android:id="@+id/song_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="名称"
+            android:textColor="@color/line"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/singer_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/song_name"
+            android:text="歌手"
+            android:textColor="@color/gray"
+            android:textSize="10sp" />
+
+    </RelativeLayout>
+
+
+    <guyuanjun.com.myappdemo.fragment.my.store.music.WordView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/progress_layout"
+        android:layout_below="@+id/song_info" />
+
+    <RelativeLayout
+        android:id="@+id/progress_layout"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_above="@+id/op_layout"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="0dp"
+        android:gravity="center_vertical"
+        android:padding="5dp">
+
+        <TextView
+            android:id="@+id/cur_pro"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:gravity="center_vertical"
+            android:text="01:24"
+            android:textSize="10sp" />
+
+        <SeekBar
+            android:id="@+id/progress"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toLeftOf="@+id/total_pro"
+            android:layout_toRightOf="@+id/cur_pro"
+            android:gravity="center_vertical" />
+
+        <TextView
+            android:id="@+id/total_pro"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:gravity="center_vertical"
+            android:text="04:24"
+            android:textSize="10sp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/op_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/previous"
+            android:layout_width="50dip"
+            android:layout_height="50dip"
+            android:layout_marginRight="20dp"
+            android:layout_toLeftOf="@+id/play"
+            android:src="@drawable/previous" />
+
+        <ImageView
+            android:id="@+id/play"
+            android:layout_width="50dip"
+            android:layout_height="50dip"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/stop" />
+
+        <ImageView
+            android:id="@+id/next"
+            android:layout_width="50dip"
+            android:layout_height="50dip"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@+id/play"
+            android:src="@drawable/next" />
+    </RelativeLayout>
+</RelativeLayout>
