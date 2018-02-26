@@ -18,14 +18,14 @@ public class MyRequestFactory {
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
 
-    private MyRequestFactory(){
+    private MyRequestFactory() {
 
     }
 
     public static MyRequestFactory getInstance() {
-        if (instance == null){
-            synchronized (MyRequestFactory.class){
-                if (instance == null){
+        if (instance == null) {
+            synchronized (MyRequestFactory.class) {
+                if (instance == null) {
                     instance = new MyRequestFactory();
                 }
             }
@@ -33,12 +33,12 @@ public class MyRequestFactory {
         return instance;
     }
 
-    public Request buildGetRequest(final String url){
+    public Request buildGetRequest(final String url) {
         Request request = new Request.Builder().url(url).build();
         return request;
     }
 
-    public Request buildPostRequest(final String url, final String json){
+    public Request buildPostRequest(final String url, final String json) {
         RequestBody body = RequestBody.create(JSON, json);
         Request request = new Request.Builder()
                 .url(url)
@@ -46,4 +46,9 @@ public class MyRequestFactory {
                 .build();
         return request;
     }
+
+    public String getUrl(final String url, final String name, final String value) {
+        return url + "?" + name + "=" + value;
+    }
+
 }
