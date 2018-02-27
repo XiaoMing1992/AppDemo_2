@@ -122,6 +122,6 @@ public class RegisterSecond extends AppCompatActivity {
     }
 
     private String getinvitationCode(){
-        return Utils.randName();
+        return Utils.getInstance().randName();
     }
 }

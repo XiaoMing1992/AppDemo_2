@@ -13,10 +13,14 @@ import android.widget.GridView;
 
 import guyuanjun.com.myappdemo.R;
 import guyuanjun.com.myappdemo.dialog.LoginByPhone;
+import guyuanjun.com.myappdemo.fragment.my.store.bill.BillActivity;
 import guyuanjun.com.myappdemo.fragment.my.store.game.GameActivity;
 import guyuanjun.com.myappdemo.fragment.my.store.invitation.InvitationActivity;
 import guyuanjun.com.myappdemo.fragment.my.store.mobile.MobileActivity;
+import guyuanjun.com.myappdemo.fragment.my.store.movie.MovieActivity;
 import guyuanjun.com.myappdemo.fragment.my.store.music.MusicActivity;
+import guyuanjun.com.myappdemo.fragment.my.store.sale.SaleActivity;
+import guyuanjun.com.myappdemo.fragment.my.store.tv.TVActivity;
 import guyuanjun.com.myappdemo.utils.Utils;
 
 public class MyStore extends AppCompatActivity {
@@ -47,7 +51,19 @@ public class MyStore extends AppCompatActivity {
                 Map<String, Object> item= (HashMap<String, Object>) adapterView.getItemAtPosition(position);
                 //显示所选Item的ItemText
                 setTitle((String)item.get("ItemText"));*/
-                if (position == 3) {
+                if (position == 0) {
+                    Intent intent = new Intent();
+                    intent.setClass(mContext, SaleActivity.class);
+                    startActivity(intent);
+                }else if (position == 1) {
+                    Intent intent = new Intent();
+                    intent.setClass(mContext, MovieActivity.class);
+                    startActivity(intent);
+                }else if (position == 2) {
+                    Intent intent = new Intent();
+                    intent.setClass(mContext, TVActivity.class);
+                    startActivity(intent);
+                }else if (position == 3) {
                     Intent intent = new Intent();
                     intent.setClass(mContext, MusicActivity.class);
                     startActivity(intent);
@@ -61,8 +77,13 @@ public class MyStore extends AppCompatActivity {
                     Intent intent = new Intent();
                     intent.setClass(mContext, InvitationActivity.class);
                     startActivity(intent);
-                }
-                else {
+                } else if (position == 6){
+                    if (!hasLoaded(mContext)) //没有登录
+                        return;
+                    Intent intent = new Intent();
+                    intent.setClass(mContext, BillActivity.class);
+                    startActivity(intent);
+                }else {
                     Intent intent = new Intent();
                     intent.setClass(mContext, MobileActivity.class);
                     startActivity(intent);
@@ -78,14 +99,6 @@ public class MyStore extends AppCompatActivity {
             Log.d(TAG, "sessionId = " + sessionId);
             LoginByPhone loginByPhone = new LoginByPhone(context);
             loginByPhone.show();
-
-            WindowManager windowManager = getWindowManager();
-            Display display = windowManager.getDefaultDisplay();
-            WindowManager.LayoutParams lp = loginByPhone.getWindow()
-                    .getAttributes();
-            lp.width = (int) (display.getWidth()); // 设置宽度
-            lp.height = (int) display.getHeight();
-            loginByPhone.getWindow().setAttributes(lp);
             return false;
         }
         return true;

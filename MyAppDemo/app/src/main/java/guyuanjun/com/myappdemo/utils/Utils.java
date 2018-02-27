@@ -505,7 +505,7 @@ public class Utils {
      * @return
      */
 
-    public static String randName() {
+    public String randName() {
         String result = "";
         Date date = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -604,6 +604,14 @@ public class Utils {
         timeStr += minute+"分钟";
         //}
         return timeStr;
+    }
+
+    public String generateVerifyCode(){
+        String verifyCode = "";
+        for (int i=0;i<4;i++){
+            verifyCode = verifyCode+""+(int)(Math.random()*10);
+        }
+        return verifyCode;
     }
 }
 

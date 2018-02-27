@@ -90,6 +90,8 @@ public class LoginByPhone extends Dialog {
         }
     };
 
+    private String mVerifyCode;
+
     public LoginByPhone(Context context) {
         super(context, R.style.MyDialogStyle);
         mContext = context;
@@ -136,8 +138,9 @@ public class LoginByPhone extends Dialog {
             @Override
             public void onClick(View view) {
                 String _phone = phone.getText().toString().trim();
+                mVerifyCode = Utils.getInstance().generateVerifyCode();
                 if (MyUtils.isMobileNO(_phone)) {
-                    Toast.makeText(mContext, "发送验证码到手机号" + _phone, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "发送验证码"+mVerifyCode+"到手机号" + _phone, Toast.LENGTH_SHORT).show();
                     //login.setEnabled(true);
                     new Thread(runnable).start();
                 }else {
@@ -172,8 +175,8 @@ public class LoginByPhone extends Dialog {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String _verify_code = verify_code.toString().toString().trim();
-                if (_verify_code.equals("111111")) {
+                final String _verify_code = verify_code.getText().toString().trim();
+                if (_verify_code.equals(mVerifyCode)) {
                     String _phone = phone.getText().toString().trim();
                     if (!MyUtils.isMobileNO(_phone)) {
                         Toast.makeText(mContext, "手机号格式不对", Toast.LENGTH_SHORT).show();

@@ -368,7 +368,7 @@
         <provider
             android:name="com.tencent.mid.api.MidProvider"
             android:authorities="guyuanjun.com.myappdemo.TENCENT.MID.V3"
-            android:exported="true"></provider>
+            android:exported="true" />
         <!--  -->
         <meta-data
             android:name="TA_APPKEY"
@@ -393,7 +393,7 @@
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity android:name=".admin.MyPushNewsActivity" />
         <activity android:name=".admin.MyPushWeitoutiaoActivity" />
-        <activity android:name=".picture.MyPhotoActivity"></activity>
+        <activity android:name=".picture.MyPhotoActivity" />
 
         <!-- 阿里百川配置 -->
         <meta-data
@@ -406,6 +406,10 @@
             android:name="com.taobao.android.hotfix.RSASECRET"
             android:value="MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCA8jRe1j9ZwgEdUWb35qvJogwdOFqPCHKiBPn6avWnyb3Ck5U43fyXxm/HxtGtHvygrJaVTBP0ZDTXzwVfEKcrYBLi3GGR/aXVahRdX9uUmgNjrWK34G0doz1T7UOK4X6ri3vB+5A5zEwlXATrVGlm33kxEJ9rWEnwwrp95W4ni5MsPX0Hs6x73mKx9pSmJw5QrGxD4SnZpxTtJrzOxVvneG/gifH3Jd0iMpAgIxNabRqlp0Ca1t4uWaAoUdCr+QqIh4NzM50K+Sw93JPOWTTuXAe7vBDrRazU5SxxkTn4nit9WbXD2mDl11gx3cnTWlrRXdQskxupxeaI2UVdZlnjAgMBAAECggEARlhb+7T0IJp3EzB6dRlxdHGkHDjHJqrcJsmCOnwpghzMGh97U+e+ymomRx2O+9wgw+MDz3UOmdAlB+rXqlIicMZb50mFLSjsVG4np/0IhJw05ycK6PdVb8rDRUr2AwkbmqhgnqYHu5BZpjP6Nwv46HdX3U2NOvmSdPc22EHXA1kZBderw7+lwfwm/r17BkjWDCxAd0b8KXRQwRrs1HJ67NOLxp0Xn5O2xgA3Qw3g/wLtcyNOmQTrwwr9hiNoXSdiZxWJzM/4gkmB7ySCdG/hnNKunl21qTaBhusJ2RRoDpDsilnPTH0EUG5jOZetzptaBDGtJsBntfbNVPkSeqPGcQKBgQDM+BdaCT0zNb98XTiTVtaRfUPkRHzvCf4Wbdi04ANukmvdfwAlHOw/M2Wp5Wxs8oHQeXPRS0/mcgczQtBxZNTakKUzerpNzSL/IzEAl0Wu/xQGxxtIciav8iMQnX/WBogEA7yhov8z/tcZZ6EwxZJEkzmXN6f9t+apFpFonYWyWQKBgQChDLZrFmHXaYWFOYInhL6+6Fe8ZHgpIvV8Rza7Zr8f8EeaiQ58IVo6s3wsRNRzWNjroN8f+Q50j3GBAGR9yJ1VqeF9Yq7uJZleryYeRkZpH78ux9/M12fnA+9KnqTBGb11pgh/wHLNUS6pD/iQyfOWiTYxikxqBQshUpYrq/aOmwKBgAJe5DZAYRrUhlBz65GYsYahQkXDnQZOwUeVIaqF5MREoUbAj0nemcTpXUWnx6dC7slwfixviI8LxpWLMkn9dpDIl4CO7NS1iLAWwhxVo5KwlJS3fNNLrrLeRBWPHMlm7e/N80KTVgxN6EL89dpQjq6IXWQoWqMOm3ZdMnVZTRCRAoGAcmdQcnP83wQDqGb40U/YHE96e8a3ISnHTxhbhfZwEKUkiF+SHZWnvglgTSY78RCNT50Aw3qtzRlU3PnFaSEIuyCpoONoNp4Y/AzZvCnZvLWjnvy3O5FNKus9ojld+hpp3tgqM24nXzirN8ezoE8Frcsc50ZCEBIzHOHI8Y7/378CgYEAnxaaZz9fyoDOKK5SmP+RakAoBImh/VvaMtjDXiocv/CnX2yJ+7H1fWOwMNi6OwPHuTKyeyBGoGpbZCADiSdp2acUrbcWL32ppdLaJWteXdrnQ0B5B8TzVbGEWYyKIr18J6c7RHcmi0qEV1ZVOq+JERQgYGHlu/aF8GoHKUXoqnk=" />
 
+        <activity android:name=".fragment.my.store.movie.MovieActivity" />
+        <activity android:name=".fragment.my.store.sale.SaleActivity" />
+        <activity android:name=".fragment.my.store.tv.TVActivity" />
+        <activity android:name=".fragment.my.store.bill.BillActivity"></activity>
     </application>
 
 </manifest>
