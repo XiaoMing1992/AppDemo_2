@@ -1,4 +1,4 @@
-package guyuanjun.com.mychat;
+package guyuanjun.com.mychat.presenter;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -10,7 +10,7 @@ import java.net.ServerSocket;
 public class Server {
     private volatile static Server instance = null;
     private final String HOST_IP = "";
-    private final int HOST_PORT = 12580;
+    private final int HOST_PORT = 12586;
 
     private Server(){}
     public static Server getInstance(){

@@ -1,7 +1,6 @@
-package guyuanjun.com.mychat;
+package guyuanjun.com.client.presenter;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
@@ -10,8 +9,8 @@ import java.net.Socket;
 
 public class Client {
     private volatile static Client instance = null;
-    private final String HOST_IP = "";
-    private final int HOST_PORT = 12580;
+    private final String HOST_IP = "192.168.1.107";
+    private final int HOST_PORT = 12586;
 
     private Client(){}
     public static Client getInstance(){
@@ -27,10 +26,12 @@ public class Client {
 
     public Socket getClientSocket(){
         Socket socket = null;
-        try {
-            socket = new Socket(HOST_IP, HOST_PORT);
-        } catch (IOException e) {
-            e.printStackTrace();
+        while (socket == null) {
+            try {
+                socket = new Socket(HOST_IP, HOST_PORT);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return socket;
     }
