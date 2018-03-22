@@ -8,6 +8,8 @@ import guyuanjun.com.client.adapter.MyAdapter;
 
 public interface IPresenter {
     void clear();
-    void sengMsg(final String msg);
+    void sengMsg(final String to_id, final String msg);
     MyAdapter getMyAdapter();
+    String getIp();
+    void getServerMsg();
 }

@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -19,7 +20,8 @@ import guyuanjun.com.client.presenter.IPresenter;
 import guyuanjun.com.client.presenter.PresenterComp;
 
 public class ClientActivity extends AppCompatActivity implements View.OnClickListener, IView{
-
+    private TextView ip;
+    private EditText to_id;
     private Button send;
     private EditText input;
     private ListView listView;
@@ -37,7 +39,9 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void initView(){
+        ip = (TextView)findViewById(R.id.ip);
         input = (EditText)findViewById(R.id.input);
+        to_id = (EditText)findViewById(R.id.to_id);
         send = (Button)findViewById(R.id.send);
         listView = (ListView) findViewById(R.id.content);
         send.setOnClickListener(this);
@@ -47,6 +51,9 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
     private void init(){
         iPresenter = new PresenterComp(this);
         listView.setAdapter(iPresenter.getMyAdapter());
+        ip.setText(iPresenter.getIp());
+        iPresenter.getServerMsg(); //开启线程监听服务器发送来的信息
+
 //        data = new ArrayList<>();
 //        myAdapter = new MyAdapter(ClientActivity.this, data);
 //        listView.setAdapter(myAdapter);
@@ -56,7 +63,7 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.send:
-                iPresenter.sengMsg(input.getText().toString().trim());
+                iPresenter.sengMsg(to_id.getText().toString().trim(), input.getText().toString().trim());
                 Log.d("client", input.getText().toString().trim());
 //                boolean res = iPresenter.sengMsg(input.getText().toString().trim());
 //                if (res) {

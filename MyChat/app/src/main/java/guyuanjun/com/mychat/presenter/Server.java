@@ -2,6 +2,9 @@ package guyuanjun.com.mychat.presenter;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by HP on 2018-3-6.
@@ -11,6 +14,7 @@ public class Server {
     private volatile static Server instance = null;
     private final String HOST_IP = "";
     private final int HOST_PORT = 12586;
+
 
     private Server(){}
     public static Server getInstance(){
