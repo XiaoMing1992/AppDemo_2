@@ -1,15 +1,25 @@
 package guyuanjun.com.client.presenter;
 
+import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import guyuanjun.com.client.adapter.MyAdapter;
+import guyuanjun.com.client.view.ClientActivity;
 import guyuanjun.com.client.view.IView;
 import guyuanjun.com.client.view.StatusCode;
 
@@ -21,6 +31,8 @@ public class PresenterComp implements IPresenter {
     IView iView;
     Handler handler;
     boolean res = false;
+    List<Map<String, ?>> data;
+    MyAdapter myAdapter;
 
     public PresenterComp(IView iView){
         this.iView = iView;
@@ -30,15 +42,19 @@ public class PresenterComp implements IPresenter {
                 super.handleMessage(msg);
                 switch (msg.what){
                     case StatusCode.FAIL:
-                        setSendState(false);
+                        //setSendState(false);
                         break;
 
                     case StatusCode.SUCCESS:
-                        setSendState(true);
+                        //setSendState(true);
+                        myAdapter.notifyDataSetChanged();
                         break;
                 }
             }
         };
+
+        data = new ArrayList<>();
+        myAdapter = new MyAdapter((Activity)iView, data);
     }
 
     @Override
@@ -51,6 +67,11 @@ public class PresenterComp implements IPresenter {
 
     public boolean getSendState(){
         return res;
+    }
+
+    @Override
+    public MyAdapter getMyAdapter(){
+        return myAdapter;
     }
 
     @Override
@@ -69,6 +90,26 @@ public class PresenterComp implements IPresenter {
                         //out.write(msg.getBytes());
                         out.flush();
                         //handler.sendEmptyMessage(StatusCode.SUCCESS);
+
+                        Map map = new HashMap();
+                        map.put("content", "" + msg);
+                        map.put("id", 1);
+                        data.add(map);
+
+//                        InputStreamReader reader = new InputStreamReader(socket.getInputStream(), "utf-8");
+//                        BufferedReader bufferedReader = new BufferedReader(reader);
+//                        //byte[] b = new byte[4*1024];
+//                        StringBuffer buffer = new StringBuffer();
+//                        while (bufferedReader.read() != -1){
+//                            buffer.append(bufferedReader.readLine());
+//                        }
+//                        Log.d("fromServer", "" + buffer.toString()+" ip="+socket.getInetAddress());
+//                        Map map = new HashMap();
+//                        map.put("content", "" + buffer.toString());
+//                        map.put("id", 1);
+//                        data.add(map);
+                        handler.sendEmptyMessage(StatusCode.SUCCESS);
+
                     } catch (IOException e) {
                         e.printStackTrace();
                         //return false;

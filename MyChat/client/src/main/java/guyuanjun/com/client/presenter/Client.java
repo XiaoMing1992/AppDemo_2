@@ -9,7 +9,7 @@ import java.net.Socket;
 
 public class Client {
     private volatile static Client instance = null;
-    private final String HOST_IP = "192.168.1.107";
+    private final String HOST_IP = "192.168.0.101";
     private final int HOST_PORT = 12586;
 
     private Client(){}
