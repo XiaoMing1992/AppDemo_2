@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.google.gson.Gson;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -32,6 +34,7 @@ import java.util.concurrent.Executors;
 import guyuanjun.com.mychat.R;
 import guyuanjun.com.mychat.Utils;
 import guyuanjun.com.mychat.adapter.MyAdapter;
+import guyuanjun.com.mychat.model.MyMessage;
 import guyuanjun.com.mychat.presenter.Server;
 
 public class MainActivity extends AppCompatActivity {
@@ -133,70 +136,101 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 ServerSocket serverSocket = Server.getInstance().getServerSocket();
                 if (serverSocket != null) {
-                    Socket socket = null;
+                    //final Socket socket;
                     Log.d("server", "已经开启socket连接");
                     while (true) {
                         try {
-                            socket = serverSocket.accept();
+                            final Socket socket = serverSocket.accept();
                             Log.d("server", "已经开启socket连接=============");
                             if (socket != null && socket.isConnected()) {
-                                Log.d("server", "socket连接成功");
-                                mClientList.add(socket); //记录成功连接的客户端
-                                Map ip_map = new HashMap();
-                                ip_map.put("ip", socket.getInetAddress().getHostAddress());
-                                ips.add(ip_map);
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            Log.d("server", "socket连接成功" + socket.getInetAddress().getHostAddress());
+                                            mClientList.add(socket); //记录成功连接的客户端
+                                            Map ip_map = new HashMap();
+                                            ip_map.put("ip", socket.getInetAddress().getHostAddress());
+                                            ips.add(ip_map);
 
-                                //BufferedInputStream in = new BufferedInputStream(socket.getInputStream());
-                                InputStreamReader reader = new InputStreamReader(socket.getInputStream(), "utf-8");
-                                BufferedReader bufferedReader = new BufferedReader(reader);
+                                            //BufferedInputStream in = new BufferedInputStream(socket.getInputStream());
+                                            InputStreamReader reader = new InputStreamReader(socket.getInputStream(), "utf-8");
+                                            BufferedReader bufferedReader = new BufferedReader(reader);
 
-                                //byte[] b = new byte[4*1024];
-                                StringBuffer buffer = new StringBuffer();
-                                while (bufferedReader.read() != -1) {
-                                    buffer.append(bufferedReader.readLine());
-                                }
-                                Log.d("fromClient", "" + buffer.toString() + " ip=" + socket.getInetAddress().getHostAddress());
+                                            //byte[] b = new byte[4*1024];
+                                            StringBuffer buffer = new StringBuffer();
+                                            String str = null;
+                                            while ((str = bufferedReader.readLine()) != null) {
+                                                System.out.println(str);//此时str就保存了一行字符串
+                                                buffer.append(str);
+                                            }
+//                                while (bufferedReader.read() != -1) {
+//                                    buffer.append(bufferedReader.readLine());
+//                                }
+                                            Log.d("fromClient", "" + buffer.toString() + " ip=" + socket.getInetAddress().getHostAddress());
 
-                                Map map = new HashMap();
-                                map.put("content", "" + buffer.toString());
-                                map.put("id", 0);
-                                data.add(map);
-                                handler.sendEmptyMessage(StatusCode.SUCCESS);
+                                            Map map = new HashMap();
+                                            map.put("content", "" + buffer.toString());
+                                            map.put("id", 0);
+                                            data.add(map);
+                                            handler.sendEmptyMessage(StatusCode.SUCCESS);
 
 //                                PrintWriter out = null;
 //                                out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "utf-8"), true);
 //                                out.write(buffer.toString());
 //                                //out.write(msg.getBytes());
 //                                out.flush();
+//                                MyMessage myMessage = new Gson().fromJson(buffer.toString(), MyMessage.class);
+//                                String to_id = myMessage.getTo();
+//                                String msg = myMessage.getMsg();
+//                                Log.d("fromClient", "to_id = " + to_id + " msg=" + msg);
 
-                                JSONObject msgJson = new JSONObject(buffer.toString());
-                                String to_id = msgJson.getString("to");
-                                String msg = msgJson.getString("msg");
-                                if (to_id != null) {
-                                    boolean flag = false;
-                                    for (Socket client : mClientList) {
-                                        if (flag) break;
-                                        for (Map my_ip_map : ips) {
-                                            if (to_id.equals(my_ip_map.get("ip"))) {
-                                                PrintWriter out = null;
-                                                out = new PrintWriter(new OutputStreamWriter(client.getOutputStream(), "utf-8"), true);
-                                                out.write(msg);
-                                                //out.write(msg.getBytes());
-                                                out.flush();
-                                                flag = true;
-                                                break;
+
+                                            JSONObject msgJson = new JSONObject(buffer.toString());
+                                            String to_id = msgJson.getString("to");
+                                            String msg = msgJson.getString("msg");
+                                            Log.d("fromClient", "to_id = " + to_id + " msg=" + msg);
+                                            if (to_id != null) {
+                                                boolean flag = false;
+                                                for (Socket client : mClientList) {
+                                                    if (flag) break;
+                                                    for (Map my_ip_map : ips) {
+                                                        Log.d("fromClient", "my_ip_map = " + my_ip_map.get("ip"));
+                                                        if (to_id.equals(my_ip_map.get("ip"))) {
+                                                            Log.d("toClient", "to_id = " + to_id + "  msg=" + msg + "  start");
+                                                            PrintWriter out = null;
+                                                            out = new PrintWriter(new OutputStreamWriter(client.getOutputStream(), "utf-8"), true);
+                                                            out.write(msg);
+                                                            //out.write(msg.getBytes());
+                                                            out.flush();
+                                                            flag = true;
+                                                            Log.d("toClient", "to_id = " + to_id + "  msg=" + msg + "  end");
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else {
+                                                Log.d("server", "ip 不能为空");
                                             }
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        } finally {
+
                                         }
+
                                     }
-                                } else {
-                                    Log.d("server", "ip 不能为空");
-                                }
+                                }).start();
+
                             } else {
                                 Log.d("server", "socket连接失败");
                             }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
+                        }
+//                        catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+                        catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
@@ -218,4 +252,11 @@ public class MainActivity extends AppCompatActivity {
 //            e.printStackTrace();
 //        }
 //    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+    }
 }

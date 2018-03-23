@@ -4,10 +4,12 @@ package guyuanjun.com.mychat.model;
  * Created by HP on 2018-3-14.
  */
 
-public class Message implements IMessage{
+public class MyMessage implements IMessage{
     private String mContent;
     private String mTimeStr;
-    
+    private String mTo;
+    private String mMsg;
+
     @Override
     public String getContent() {
         return mContent;
@@ -26,5 +28,25 @@ public class Message implements IMessage{
     @Override
     public void setTime(String time) {
         this.mTimeStr = time;
+    }
+
+    @Override
+    public void setTo(String to) {
+        mTo = to;
+    }
+
+    @Override
+    public String getTo() {
+        return mTo;
+    }
+
+    @Override
+    public String getMsg() {
+        return mMsg;
+    }
+
+    @Override
+    public void setMsg(String msg) {
+        mMsg = msg;
     }
 }

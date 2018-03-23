@@ -9,4 +9,8 @@ public interface IMessage {
     String getTime();
     void setContent(String content);
     void setTime(String time);
+    void setTo(String to);
+    String getTo();
+    String getMsg();
+    void setMsg(String msg);
 }

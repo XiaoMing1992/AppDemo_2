@@ -1,5 +1,6 @@
 package guyuanjun.com.mychat;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -20,43 +21,59 @@ import java.util.Enumeration;
  */
 
 public class Utils {
-    public static String getIP(Context context){
+    public static String getIP(Context context) {
         String ip = null;
         ConnectivityManager conMann = (ConnectivityManager)
                 context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo mobileNetworkInfo = conMann.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        NetworkInfo wifiNetworkInfo = conMann.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        //NetworkInfo mobileNetworkInfo = conMann.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        //NetworkInfo wifiNetworkInfo = conMann.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-        if (mobileNetworkInfo.isConnected()) {
-            ip = getLocalIpAddress();
-            System.out.println("本地ip-----"+ip);
-        }else if(wifiNetworkInfo.isConnected())
-        {
-            WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-            int ipAddress = wifiInfo.getIpAddress();
-            ip = intToIp(ipAddress);
-            System.out.println("wifi_ip地址为------"+ip);
+
+        NetworkInfo wifiNetworkInfo = conMann.getActiveNetworkInfo();
+        if (wifiNetworkInfo != null && wifiNetworkInfo.isAvailable()) {
+            if (wifiNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI){
+                WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+                WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+                int ipAddress = wifiInfo.getIpAddress();
+                ip = intToIp(ipAddress);
+                System.out.println("wifi_ip地址为------" + ip);
+            }else if (wifiNetworkInfo.getType() == ConnectivityManager.TYPE_MOBILE){
+                ip = getLocalIpAddress();
+                System.out.println("本地ip-----" + ip);
+            }else if (wifiNetworkInfo.getType() == ConnectivityManager.TYPE_ETHERNET){
+                System.out.println("以太网本地ip-----");
+            }
         }
+
+//        if (mobileNetworkInfo != null && mobileNetworkInfo.isConnected()) {
+//            ip = getLocalIpAddress();
+//            System.out.println("本地ip-----" + ip);
+//        } else if (wifiNetworkInfo != null && wifiNetworkInfo.isConnected()) {
+//            WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+//            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+//            int ipAddress = wifiInfo.getIpAddress();
+//            ip = intToIp(ipAddress);
+//            System.out.println("wifi_ip地址为------" + ip);
+//        }
 
         return ip;
     }
 
     /**
      * 获取本地ip地址，获取的是ipv4格式的ip地址
+     *
      * @return
      */
     public static String getLocalIpAddress() {
         try {
             String ipv4;
             ArrayList<NetworkInterface> nilist = Collections.list(NetworkInterface.getNetworkInterfaces());
-            for (NetworkInterface ni: nilist)
-            {
-                ArrayList<InetAddress>  ialist = Collections.list(ni.getInetAddresses());
-                for (InetAddress address: ialist){
+            for (NetworkInterface ni : nilist) {
+                ArrayList<InetAddress> ialist = Collections.list(ni.getInetAddresses());
+                for (InetAddress address : ialist) {
                     //if (!address.isLoopbackAddress() && InetAddressUtils.isIPv4Address(ipv4=address.getHostAddress()))
                     //{
-                        //return ipv4;
+                    //return ipv4;
                     //}
                 }
 
@@ -70,6 +87,7 @@ public class Utils {
 
     /**
      * 获取WI-FI ip地址
+     *
      * @param ipInt
      * @return
      */
@@ -84,19 +102,20 @@ public class Utils {
 
     /**
      * 获取的是ipv6的本地ip
+     *
      * @return
      */
     public static String getlocalIp() {
         String ip = null;
 
         try {
-            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
                 NetworkInterface intf = en.nextElement();
-                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
                     InetAddress inetAddress = enumIpAddr.nextElement();
-                    if (!inetAddress.isLoopbackAddress()&&!inetAddress.isLinkLocalAddress()) {
-                              ip=inetAddress.getHostAddress().toString();
-                        System.out.println("ip=========="+inetAddress.getHostAddress().toString());
+                    if (!inetAddress.isLoopbackAddress() && !inetAddress.isLinkLocalAddress()) {
+                        ip = inetAddress.getHostAddress().toString();
+                        System.out.println("ip==========" + inetAddress.getHostAddress().toString());
                         //return inetAddress.getHostAddress().toString();
 
                     }
@@ -120,7 +139,7 @@ public class Utils {
                         for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
                             InetAddress inetAddress = enumIpAddr.nextElement();
                             if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
-                                Log.d("Utils", "MOBILE ip="+inetAddress.getHostAddress());
+                                Log.d("Utils", "MOBILE ip=" + inetAddress.getHostAddress());
                                 return inetAddress.getHostAddress();
                             }
                         }
@@ -133,7 +152,7 @@ public class Utils {
                 WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
                 WifiInfo wifiInfo = wifiManager.getConnectionInfo();
                 String ipAddress = intIP2StringIP(wifiInfo.getIpAddress());//得到IPV4地址
-                Log.d("Utils", "Wifi ip="+ipAddress);
+                Log.d("Utils", "Wifi ip=" + ipAddress);
                 return ipAddress;
             }
         } else {

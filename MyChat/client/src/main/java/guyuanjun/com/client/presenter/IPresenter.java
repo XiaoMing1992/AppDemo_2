@@ -10,6 +10,6 @@ public interface IPresenter {
     void clear();
     void sengMsg(final String to_id, final String msg);
     MyAdapter getMyAdapter();
-    String getIp();
+    void getIp();
     void getServerMsg();
 }

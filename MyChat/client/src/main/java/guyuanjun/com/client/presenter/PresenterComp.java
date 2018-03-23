@@ -1,6 +1,9 @@
 package guyuanjun.com.client.presenter;
 
 import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -23,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import guyuanjun.com.client.Utils;
 import guyuanjun.com.client.adapter.MyAdapter;
 import guyuanjun.com.client.view.ClientActivity;
 import guyuanjun.com.client.view.IView;
@@ -54,12 +58,21 @@ public class PresenterComp implements IPresenter {
                         //setSendState(true);
                         myAdapter.notifyDataSetChanged();
                         break;
+
+                    case 2:
+                        String ip = (String) msg.obj;
+                        returnIP(ip);
+                        break;
                 }
             }
         };
 
         data = new ArrayList<>();
         myAdapter = new MyAdapter((Activity) iView, data);
+    }
+
+    private void returnIP(final String ip){
+        iView.getIp(ip);
     }
 
     @Override
@@ -88,6 +101,7 @@ public class PresenterComp implements IPresenter {
             public void run() {
                 Socket socket = Client.getInstance().getClientSocket();
                 if (socket != null) {
+                    Log.d("client", " ip=" + socket.getInetAddress().getHostAddress()+" 连接服务器成功");
                     //BufferedOutputStream out = null;
                     PrintWriter out = null;
                     try {
@@ -99,6 +113,8 @@ public class PresenterComp implements IPresenter {
                         //通过BufferedWriter对象向服务器写数据
                         out.write(json.toString() + "\n");
                         out.flush();
+
+                        Log.d("client", " ip=" + socket.getInetAddress().getHostAddress()+" 写完"+json.toString());
 
                         //out.write(msg);
                         //out.write(msg.getBytes());
@@ -180,14 +196,21 @@ public class PresenterComp implements IPresenter {
     }
 
     @Override
-    public String getIp() {
-        String ip = null;
-        try {
-            ip = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        return ip;
+    public void getIp() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //try {
+                   // String ip = InetAddress.getLocalHost().getHostAddress();
+                    String ip = Utils.getIP((Activity) iView);
+                    Message msg = new Message();
+                    msg.what = 2;
+                    msg.obj = ip;
+                    handler.sendMessage(msg);
+                //}
+            }
+        }).start();
+
     }
 
     @Override
@@ -195,8 +218,11 @@ public class PresenterComp implements IPresenter {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                //Socket socket = Client.getInstance().getClientSocket();
+                Log.d("client", " 客户端开始连接服务器");
                 Socket socket = Client.getInstance().getClientSocket();
                 if (socket != null) {
+                    Log.d("client", " ip=" + socket.getInetAddress().getHostAddress()+" 连接服务器成功");
                     while (true) {
                         try {
 
@@ -204,21 +230,27 @@ public class PresenterComp implements IPresenter {
 //                        map.put("content", "来自" + socket.getInetAddress() + "  " + msg);
 //                        map.put("id", 1);
 //                        data.add(map);
+                            Log.d("client", " ip=" + socket.getInetAddress().getHostAddress()+" 连接服务器成功");
 
                             InputStreamReader reader = new InputStreamReader(socket.getInputStream(), "utf-8");
                             BufferedReader bufferedReader = new BufferedReader(reader);
                             //byte[] b = new byte[4*1024];
                             StringBuffer buffer = new StringBuffer();
-                            while (bufferedReader.read() != -1) {
-                                buffer.append(bufferedReader.readLine());
+                            String str = null;
+                            while((str = bufferedReader.readLine()) != null){
+                                System.out.println(str);//此时str就保存了一行字符串
+                                buffer.append(str);
                             }
+//                            while (bufferedReader.read() != -1) {
+//                                buffer.append(bufferedReader.readLine());
+//                            }
                             Log.d("fromServer", "" + buffer.toString() + " ip=" + socket.getInetAddress().getHostAddress());
 
                             Map map = new HashMap();
                             map.put("content", "" + buffer.toString());
                             map.put("id", 1);
                             data.add(map);
-                            handler.sendEmptyMessage(StatusCode.SUCCESS);
+                            //handler.sendEmptyMessage(StatusCode.SUCCESS);
 
                         } catch (IOException e) {
                             e.printStackTrace();

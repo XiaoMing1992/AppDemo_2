@@ -51,7 +51,8 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
     private void init(){
         iPresenter = new PresenterComp(this);
         listView.setAdapter(iPresenter.getMyAdapter());
-        ip.setText(iPresenter.getIp());
+        iPresenter.getIp();
+        //ip.setText(iPresenter.getIp());
         iPresenter.getServerMsg(); //开启线程监听服务器发送来的信息
 
 //        data = new ArrayList<>();
@@ -77,5 +78,10 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClearText() {
         Toast.makeText(ClientActivity.this, input.getText().toString(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void getIp(String IP) {
+        ip.setText(IP);
     }
 }
