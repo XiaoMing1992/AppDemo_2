@@ -20,6 +20,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -138,15 +139,34 @@ public class MainActivity extends AppCompatActivity {
                 if (serverSocket != null) {
                     //final Socket socket;
                     Log.d("server", "已经开启socket连接");
+                    System.out.println("server" + "已经开启socket连接");
                     Socket socket = null;
                     while (true) {
                         try {
                             //final Socket socket = serverSocket.accept();
                             socket = serverSocket.accept();
+
                             Log.d("server", "已经开启socket连接=============");
-                            if (socket != null && socket.isConnected()) {
+                            System.out.println("server" + "已经开启socket连接=============");
+                            if (socket != null && socket.isConnected() && !socket.isClosed()) {
                                 Log.d("server", "socket连接成功" + socket.getInetAddress().getHostAddress());
+                                System.out.println("server " + "socket连接成功" + socket.getInetAddress().getHostAddress());
+
+/*                                PrintWriter out = null;
+                                out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "utf-8"), true);
+                                out.write("hello " + socket.getInetAddress().getHostAddress());
+                                //out.write(msg.getBytes());
+                                out.flush();*/
+
+                                //out.close();
+                                //socket.close();
+
+//                                OutputStream outputStream = socket.getOutputStream();
+//                                outputStream.write(("hello "+socket.getInetAddress().getHostAddress()).getBytes("utf-8"));
+
+                                //if (!mClientList.contains(socket))
                                 mClientList.add(socket); //记录成功连接的客户端
+
                                 Map ip_map = new HashMap();
                                 ip_map.put("ip", socket.getInetAddress().getHostAddress());
                                 ips.add(ip_map);
@@ -277,6 +297,7 @@ public class MainActivity extends AppCompatActivity {
 //                                    buffer.append(bufferedReader.readLine());
 //                                }
                 Log.d("fromClient", "" + buffer.toString() + " ip=" + mSocket.getInetAddress().getHostAddress());
+                System.out.println("fromClient" + "" + buffer.toString() + " ip=" + mSocket.getInetAddress().getHostAddress());
 
                 Map map = new HashMap();
                 map.put("content", "" + buffer.toString());
@@ -299,32 +320,93 @@ public class MainActivity extends AppCompatActivity {
                 String to_id = msgJson.getString("to");
                 String msg = msgJson.getString("msg");
                 Log.d("fromClient", "to_id = " + to_id + " msg=" + msg);
+                System.out.println("fromClient" + "to_id = " + to_id + " msg=" + msg);
+
                 if (to_id != null) {
                     boolean flag = false;
-                    for (Socket client : mClientList) {
-                        if (flag) break;
-                        for (Map my_ip_map : ips) {
-                            Log.d("fromClient", "my_ip_map = " + my_ip_map.get("ip"));
-                            if (to_id.equals(my_ip_map.get("ip"))) {
-                                Log.d("toClient", "to_id = " + to_id + "  msg=" + msg + "  start");
-                                PrintWriter out = null;
-                                out = new PrintWriter(new OutputStreamWriter(client.getOutputStream(), "utf-8"), true);
-                                out.write(msg);
-                                //out.write(msg.getBytes());
-                                out.flush();
-                                flag = true;
+                    System.out.println("size=" + mClientList.size());
+                    for (int i = 0; i < mClientList.size(); i++) {
+                        Socket client = mClientList.get(i);
+
+/*                        if (client != null && client.isConnected() && !client.isClosed()) {
+                            System.out.println("i=" + i + "client isClose=" + client.isClosed() + " isConnect=" + client.isConnected() + client.getInetAddress().getHostAddress());
+
+
+                            PrintWriter out = null;
+                            out = new PrintWriter(new OutputStreamWriter(client.getOutputStream(), "utf-8"), true);
+                            out.write(msg);
+                            //out.write(msg.getBytes());
+                            out.flush();
+                            out.close();
+                            client.close();
+                            client = null;
+                        }*/
+
+
+                        //for (Socket client : mClientList) {
+                        //if (flag) break;
+
+                        if (client != null && client.isConnected() && !client.isClosed()) {
+                            System.out.println("i=" + i + "client isClose=" + client.isClosed() + " isConnect=" + client.isConnected() + client.getInetAddress().getHostAddress());
+
+
+                            for (Map my_ip_map : ips) {
+                                Log.d("fromClient", "my_ip_map = " + my_ip_map.get("ip"));
+                                System.out.println("fromClient" + "my_ip_map = " + my_ip_map.get("ip"));
+                                if (to_id.equals(my_ip_map.get("ip"))) {
+                                    Log.d("toClient", "to_id = " + to_id + "  msg=" + msg + "  start");
+                                    System.out.println("toClient" + "to_id = " + to_id + "  msg=" + msg + "  start");
+//                                if (client == null || client.isClosed()) {
+//                                    Log.d("toClient", "to_id = " + to_id + "  msg=" + msg + "  continue");
+//                                    System.out.println("toClient" + "to_id = " + to_id + "  msg=" + msg + "  continue");
+//                                    mClientList.remove(i);
+//                                    i = i > 0 ? (i - 1) : 0;
+//
+//                                    continue;
+//                                }
+
+
+                                    PrintWriter out = null;
+                                    out = new PrintWriter(new OutputStreamWriter(client.getOutputStream(), "utf-8"), true);
+                                    out.write(msg);
+                                    //out.write(msg.getBytes());
+                                    out.flush();
+                                    out.close();
+                                    client.close();
+                                    client = null;
+                                    break;
+                                }
                                 Log.d("toClient", "to_id = " + to_id + "  msg=" + msg + "  end");
-                                break;
+                                System.out.println("toClient" + "to_id = " + to_id + "  msg=" + msg + "  end");
+//
+//                                PrintWriter out = null;
+//                                out = new PrintWriter(new OutputStreamWriter(client.getOutputStream(), "utf-8"), true);
+//                                out.write(msg);
+//                                //out.write(msg.getBytes());
+//                                out.flush();
+                                //out.close();
+                                //client.close();
+                                //mClientList.remove(i);
+
+
+                                //flag = true;
+//                                Log.d("toClient", "to_id = " + to_id + "  msg=" + msg + "  end");
+//                                System.out.println("toClient" + "to_id = " + to_id + "  msg=" + msg + "  end");
+                                //break;
                             }
                         }
+                        //}
                     }
                 } else {
                     Log.d("server", "ip 不能为空");
                 }
+
+                //mSocket.close();
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
+                mClientList.remove(mSocket);
             } finally {
 
             }

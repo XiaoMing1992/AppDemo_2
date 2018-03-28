@@ -236,11 +236,13 @@ public class PresenterComp implements IPresenter {
             @Override
             public void run() {
                 //Socket socket = Client.getInstance().getClientSocket();
+                System.out.println("client"+ " 客户端开始连接服务器");
                 Log.d("client", " 客户端开始连接服务器");
                 //Socket socket = Client.getInstance().getClientSocket();
                 socket = Client.getInstance().getClientSocket();
                 if (socket != null) {
                     handler.sendEmptyMessage(StatusCode.CONNECT_SUCCESS);
+                    System.out.println("client"+" ip=" + socket.getInetAddress().getHostAddress() + " 连接服务器成功");
                     Log.d("client", " ip=" + socket.getInetAddress().getHostAddress() + " 连接服务器成功");
                     mExecutorService.execute(new ReceiveRunnable());
 //
@@ -302,11 +304,13 @@ public class PresenterComp implements IPresenter {
         public void run() {
             Socket socket = Client.getInstance().getClientSocket();
             if (socket != null) {
+                System.out.println("client"+" ip=" + socket.getInetAddress().getHostAddress() + " 连接服务器成功");
                 Log.d("client", " ip=" + socket.getInetAddress().getHostAddress() + " 连接服务器成功");
                 //BufferedOutputStream out = null;
                 PrintWriter out = null;
                 try {
                     out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "utf-8"), true);
+                    //out.write("hello, server" + "\n");
                     //封装成json
                     JSONObject json = new JSONObject();
                     json.put("to", to_id);
@@ -315,6 +319,7 @@ public class PresenterComp implements IPresenter {
                     out.write(json.toString() + "\n");
                     out.flush();
 
+                    System.out.println("client"+" ip=" + socket.getInetAddress().getHostAddress() + " 写完" + json.toString());
                     Log.d("client", " ip=" + socket.getInetAddress().getHostAddress() + " 写完" + json.toString());
 
                     //out.write(msg);
@@ -381,7 +386,11 @@ public class PresenterComp implements IPresenter {
 //                        map.put("content", "来自" + socket.getInetAddress() + "  " + msg);
 //                        map.put("id", 1);
 //                        data.add(map);
+                    Socket socket = Client.getInstance().getClientSocket();
                     Log.d("client", " ip=" + socket.getInetAddress().getHostAddress() + " 连接服务器成功");
+                    System.out.println("-------client"+" ip=" + socket.getInetAddress().getHostAddress() + " 连接服务器成功");
+
+                    System.out.println("-------fromServer"+  " ip=" + socket.getInetAddress().getHostAddress());
 
                     InputStreamReader reader = new InputStreamReader(socket.getInputStream(), "utf-8");
                     BufferedReader bufferedReader = new BufferedReader(reader);
@@ -389,21 +398,34 @@ public class PresenterComp implements IPresenter {
                     StringBuffer buffer = new StringBuffer();
                     String str = null;
                     while ((str = bufferedReader.readLine()) != null) {
-                        System.out.println(str);//此时str就保存了一行字符串
+                        System.out.println("str = "+str);//此时str就保存了一行字符串
                         buffer.append(str);
                     }
 //                            while (bufferedReader.read() != -1) {
 //                                buffer.append(bufferedReader.readLine());
 //                            }
-                    Log.d("fromServer", "" + buffer.toString() + " ip=" + socket.getInetAddress().getHostAddress());
+
+
+                    System.out.println("-------fromServer"+ buffer.toString() +" ip=" + socket.getInetAddress().getHostAddress());
+
+                    //Log.d("fromServer", "" + buffer.toString() + " ip=" + socket.getInetAddress().getHostAddress());
+                    System.out.println("-------fromServer"+ ""  + buffer.toString()+" ip=" + socket.getInetAddress().getHostAddress());
 
                     Map map = new HashMap();
-                    map.put("content", "" + buffer.toString());
+                    map.put("content", "-" + buffer.toString());
                     map.put("id", 1);
                     data.add(map);
-                    //handler.sendEmptyMessage(StatusCode.SUCCESS);
+                    handler.sendEmptyMessage(StatusCode.SUCCESS);
 
-                } catch (IOException e) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
+                }
+                catch (IOException e) {
                     e.printStackTrace();
                     //return false;
                     //handler.sendEmptyMessage(StatusCode.FAIL);

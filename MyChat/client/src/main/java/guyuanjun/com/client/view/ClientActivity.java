@@ -64,8 +64,10 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.send:
-                iPresenter.sengMsg(to_id.getText().toString().trim(), input.getText().toString().trim());
                 Log.d("client", input.getText().toString().trim());
+                System.out.println("client"+input.getText().toString().trim());
+                iPresenter.sengMsg(to_id.getText().toString().trim(), input.getText().toString().trim());
+
 //                boolean res = iPresenter.sengMsg(input.getText().toString().trim());
 //                if (res) {
 //                    iPresenter.clear();
