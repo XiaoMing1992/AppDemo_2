@@ -213,6 +213,8 @@ public class ServerService extends Service {
         @Override
         public void run() {
             try {
+                if (mSocket == null || mSocket.isClosed() || !mSocket.isConnected()) return;
+
                 //BufferedInputStream in = new BufferedInputStream(socket.getInputStream());
                 InputStreamReader reader = new InputStreamReader(mSocket.getInputStream(), "utf-8");
                 BufferedReader bufferedReader = new BufferedReader(reader);
@@ -301,6 +303,9 @@ public class ServerService extends Service {
                     out.flush();
                     out.close();
                     mSocket.close();
+
+                    mClientList.remove(mSocket); //移除已经关闭的socket
+
                     mSocket = null;
                     System.out.println("=======================  向from_id = " + from_id +" 写 msg=" + msg+" end");
                 }
@@ -338,7 +343,7 @@ public class ServerService extends Service {
                                 Map my_ip_map = ips.get(j);
                                 Log.d("fromClient", "my_ip_map = " + my_ip_map.get("ip"));
                                 System.out.println("fromClient" + "my_ip_map = " + my_ip_map.get("ip"));
-                                if (to_id.equals(my_ip_map.get("ip"))) {
+                                if (to_id.equals(my_ip_map.get("ip")) && !from_id.equals(to_id)) {
 //                                    String[] arr_str = ((String) my_ip_map.get("ip")).split("_");
 //                                    if (arr_str.length <= 0) continue;
 //                                    if (!client.getInetAddress().getHostAddress().equals(arr_str[0])){
@@ -379,11 +384,16 @@ public class ServerService extends Service {
                                     out.flush();
                                     out.close();
                                     client.close();
+
+                                    mClientList.remove(i); //移除已经关闭的socket
+                                    i = i > 0 ? (i - 1) : 0;
+
                                     client = null;
+                                    Log.d("toClient", " from_id = " + from_id +"to_id = " + to_id + "  msg=" + msg + "  end");
+                                    System.out.println("toClient" + " from_id = " + from_id +"to_id = " + to_id + "  msg=" + msg + "  end");
                                     break;
                                 }
-                                Log.d("toClient", " from_id = " + from_id +"to_id = " + to_id + "  msg=" + msg + "  end");
-                                System.out.println("toClient" + " from_id = " + from_id +"to_id = " + to_id + "  msg=" + msg + "  end");
+
 //
 //                                PrintWriter out = null;
 //                                out = new PrintWriter(new OutputStreamWriter(client.getOutputStream(), "utf-8"), true);
@@ -400,7 +410,11 @@ public class ServerService extends Service {
 //                                System.out.println("toClient" + "to_id = " + to_id + "  msg=" + msg + "  end");
                                 //break;
                             }
+                        }else{
+                            mClientList.remove(i); //移除已经关闭的socket
+                            i = i > 0 ? (i - 1) : 0;
                         }
+
                         //}
                     }
                 } else {
