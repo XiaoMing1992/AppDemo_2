@@ -5,12 +5,14 @@ package guyuanjun.com.mychat.model;
  */
 
 public interface IMessage {
-    String getContent();
+    String getFrom();
     String getTime();
-    void setContent(String content);
+    void setFrom(String from);
     void setTime(String time);
     void setTo(String to);
     String getTo();
     String getMsg();
     void setMsg(String msg);
+    void setId(long id);
+    long getId();
 }

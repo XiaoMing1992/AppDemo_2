@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,9 +26,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import guyuanjun.com.client.Utils;
 import guyuanjun.com.client.adapter.MyAdapter;
+import guyuanjun.com.client.model.MyMessage;
+import guyuanjun.com.client.model.MySQLiteUtil;
 import guyuanjun.com.client.view.ClientActivity;
 import guyuanjun.com.client.view.IView;
 import guyuanjun.com.client.view.StatusCode;
@@ -40,10 +45,16 @@ public class PresenterComp implements IPresenter {
     IView iView;
     Handler handler;
     boolean res = false;
-    List<Map<String, ?>> data;
+    //List<Map<String, ?>> data;
+    List<MyMessage> data;
     MyAdapter myAdapter;
 
-    public PresenterComp(IView iView) {
+    ExecutorService mExecutorService;
+    Socket socket = null;
+    String ip = null;
+
+    public PresenterComp(final IView iView) {
+        mExecutorService = Executors.newCachedThreadPool();
         this.iView = iView;
         handler = new Handler(Looper.getMainLooper()) {
             @Override
@@ -52,6 +63,7 @@ public class PresenterComp implements IPresenter {
                 switch (msg.what) {
                     case StatusCode.FAIL:
                         //setSendState(false);
+                        Toast.makeText((Activity) iView, "发送数据失败", Toast.LENGTH_SHORT).show();
                         break;
 
                     case StatusCode.SUCCESS:
@@ -59,10 +71,19 @@ public class PresenterComp implements IPresenter {
                         myAdapter.notifyDataSetChanged();
                         break;
 
-                    case 2:
-                        String ip = (String) msg.obj;
+                    case StatusCode.CONNECT_FAIL:
+                        Toast.makeText((Activity) iView, "连接服务器失败", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case StatusCode.CONNECT_SUCCESS:
+                        Toast.makeText((Activity) iView, "连接服务器成功", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case StatusCode.GET_IP_SUCCESS:
+                        ip = (String) msg.obj;
                         returnIP(ip);
                         break;
+
                 }
             }
         };
@@ -71,7 +92,7 @@ public class PresenterComp implements IPresenter {
         myAdapter = new MyAdapter((Activity) iView, data);
     }
 
-    private void returnIP(final String ip){
+    private void returnIP(final String ip) {
         iView.getIp(ip);
     }
 
@@ -95,7 +116,12 @@ public class PresenterComp implements IPresenter {
 
     @Override
     public void sengMsg(final String to_id, final String msg) {
+        if (!iView.handleInput(to_id) || !iView.handleInput(msg)) return;
 
+        String from_id = getFromIp();
+        System.out.println("=============  sengMsg()  from_id=" + from_id);
+        mExecutorService.execute(new SendRunnable(socket, from_id, to_id, msg));
+/*
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -192,7 +218,7 @@ public class PresenterComp implements IPresenter {
 //        }, 0);
 
 
-        //return false;
+        //return false;*/
     }
 
     @Override
@@ -201,12 +227,12 @@ public class PresenterComp implements IPresenter {
             @Override
             public void run() {
                 //try {
-                   // String ip = InetAddress.getLocalHost().getHostAddress();
-                    String ip = Utils.getIP((Activity) iView);
-                    Message msg = new Message();
-                    msg.what = 2;
-                    msg.obj = ip;
-                    handler.sendMessage(msg);
+                // String ip = InetAddress.getLocalHost().getHostAddress();
+                String ip = Utils.getIP((Activity) iView);
+                Message msg = new Message();
+                msg.what = StatusCode.GET_IP_SUCCESS;
+                msg.obj = ip;
+                handler.sendMessage(msg);
                 //}
             }
         }).start();
@@ -219,48 +245,264 @@ public class PresenterComp implements IPresenter {
             @Override
             public void run() {
                 //Socket socket = Client.getInstance().getClientSocket();
+                System.out.println("client" + " 客户端开始连接服务器");
                 Log.d("client", " 客户端开始连接服务器");
-                Socket socket = Client.getInstance().getClientSocket();
+                //Socket socket = Client.getInstance().getClientSocket();
+                socket = Client.getInstance().getClientSocket();
                 if (socket != null) {
-                    Log.d("client", " ip=" + socket.getInetAddress().getHostAddress()+" 连接服务器成功");
-                    while (true) {
-                        try {
+                    handler.sendEmptyMessage(StatusCode.CONNECT_SUCCESS);
+                    System.out.println("client" + " ip=" + socket.getInetAddress().getHostAddress() + " 连接服务器成功");
+                    Log.d("client", " ip=" + socket.getInetAddress().getHostAddress() + " 连接服务器成功");
+                    mExecutorService.execute(new ReceiveRunnable());
+//
+//                    while (true) {
+//                        try {
+//
+////                        Map map = new HashMap();
+////                        map.put("content", "来自" + socket.getInetAddress() + "  " + msg);
+////                        map.put("id", 1);
+////                        data.add(map);
+//                            Log.d("client", " ip=" + socket.getInetAddress().getHostAddress() + " 连接服务器成功");
+//
+//                            InputStreamReader reader = new InputStreamReader(socket.getInputStream(), "utf-8");
+//                            BufferedReader bufferedReader = new BufferedReader(reader);
+//                            //byte[] b = new byte[4*1024];
+//                            StringBuffer buffer = new StringBuffer();
+//                            String str = null;
+//                            while ((str = bufferedReader.readLine()) != null) {
+//                                System.out.println(str);//此时str就保存了一行字符串
+//                                buffer.append(str);
+//                            }
+////                            while (bufferedReader.read() != -1) {
+////                                buffer.append(bufferedReader.readLine());
+////                            }
+//                            Log.d("fromServer", "" + buffer.toString() + " ip=" + socket.getInetAddress().getHostAddress());
+//
+//                            Map map = new HashMap();
+//                            map.put("content", "" + buffer.toString());
+//                            map.put("id", 1);
+//                            data.add(map);
+//                            //handler.sendEmptyMessage(StatusCode.SUCCESS);
+//
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                            //return false;
+//                            //handler.sendEmptyMessage(StatusCode.FAIL);
+//                        }
+//                        //return true;
+//                    }
+                } else {
+                    handler.sendEmptyMessage(StatusCode.CONNECT_FAIL);
+                }
+            }
+        }).start();
+    }
+
+    class SendRunnable implements Runnable {
+        //Socket mSocket;
+        String from_id;
+        String to_id;
+        String msg;
+
+        public SendRunnable(Socket socket, String from_id, String To_id, String Msg) {
+            //mSocket = socket;
+            this.from_id = from_id;
+            this.to_id = To_id;
+            this.msg = Msg;
+        }
+
+        @Override
+        public void run() {
+            Socket socket = Client.getInstance().getClientSocket();
+            if (socket != null) {
+                System.out.println("client" + " ip=" + socket.getInetAddress().getHostAddress() + " 连接服务器成功");
+                Log.d("client", " ip=" + socket.getInetAddress().getHostAddress() + " 连接服务器成功");
+                //BufferedOutputStream out = null;
+                PrintWriter out = null;
+                try {
+                    out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "utf-8"), true);
+                    //out.write("hello, server" + "\n");
+                    //封装成json
+                    JSONObject json = new JSONObject();
+                    json.put("from", from_id);
+                    json.put("to", to_id);
+                    json.put("msg", msg);
+                    //通过BufferedWriter对象向服务器写数据
+                    out.write(json.toString() + "\n");
+                    out.flush();
+
+                    System.out.println("client" + " ip=" + socket.getInetAddress().getHostAddress() + " 写完" + json.toString());
+                    Log.d("client", " ip=" + socket.getInetAddress().getHostAddress() + " 写完" + json.toString());
+
+                    //out.write(msg);
+                    //out.write(msg.getBytes());
+                    //out.flush();
+                    //handler.sendEmptyMessage(StatusCode.SUCCESS);
 
 //                        Map map = new HashMap();
 //                        map.put("content", "来自" + socket.getInetAddress() + "  " + msg);
 //                        map.put("id", 1);
 //                        data.add(map);
-                            Log.d("client", " ip=" + socket.getInetAddress().getHostAddress()+" 连接服务器成功");
 
-                            InputStreamReader reader = new InputStreamReader(socket.getInputStream(), "utf-8");
-                            BufferedReader bufferedReader = new BufferedReader(reader);
-                            //byte[] b = new byte[4*1024];
-                            StringBuffer buffer = new StringBuffer();
-                            String str = null;
-                            while((str = bufferedReader.readLine()) != null){
-                                System.out.println(str);//此时str就保存了一行字符串
-                                buffer.append(str);
-                            }
+//                        InputStreamReader reader = new InputStreamReader(socket.getInputStream(), "utf-8");
+//                        BufferedReader bufferedReader = new BufferedReader(reader);
+//                        //byte[] b = new byte[4*1024];
+//                        StringBuffer buffer = new StringBuffer();
+//                        while (bufferedReader.read() != -1){
+//                            buffer.append(bufferedReader.readLine());
+//                        }
+//                        Log.d("fromServer", "" + buffer.toString()+" ip="+socket.getInetAddress());
+//                        Map map = new HashMap();
+//                        map.put("content", "" + buffer.toString());
+//                        map.put("id", 1);
+//                        data.add(map);
+                    //handler.sendEmptyMessage(StatusCode.SUCCESS);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    //return false;
+                    //handler.sendEmptyMessage(StatusCode.FAIL);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (out != null) {
+                        //try {
+                        out.close();
+                        //} catch (IOException e) {
+                        //e.printStackTrace();
+                        //}
+                    }
+                }
+                //return true;
+            } else {
+                handler.sendEmptyMessage(StatusCode.CONNECT_FAIL);
+            }
+        }
+
+    }
+
+
+    class ReceiveRunnable implements Runnable {
+        //Socket mSocket;
+
+        public ReceiveRunnable() {
+            //mSocket = socket;
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+
+//                        Map map = new HashMap();
+//                        map.put("content", "来自" + socket.getInetAddress() + "  " + msg);
+//                        map.put("id", 1);
+//                        data.add(map);
+                    Socket socket = Client.getInstance().getClientSocket();
+                    Log.d("client", " ip=" + socket.getInetAddress().getHostAddress() + " 连接服务器成功");
+                    System.out.println("-------client" + " ip=" + socket.getInetAddress().getHostAddress() + " 连接服务器成功");
+
+                    System.out.println("-------fromServer" + " ip=" + socket.getInetAddress().getHostAddress());
+
+                    InputStreamReader reader = new InputStreamReader(socket.getInputStream(), "utf-8");
+                    BufferedReader bufferedReader = new BufferedReader(reader);
+                    //byte[] b = new byte[4*1024];
+                    StringBuffer buffer = new StringBuffer();
+                    String str = null;
+                    while ((str = bufferedReader.readLine()) != null) {
+                        System.out.println("str = " + str);//此时str就保存了一行字符串
+                        buffer.append(str);
+                    }
 //                            while (bufferedReader.read() != -1) {
 //                                buffer.append(bufferedReader.readLine());
 //                            }
-                            Log.d("fromServer", "" + buffer.toString() + " ip=" + socket.getInetAddress().getHostAddress());
 
-                            Map map = new HashMap();
-                            map.put("content", "" + buffer.toString());
-                            map.put("id", 1);
-                            data.add(map);
-                            //handler.sendEmptyMessage(StatusCode.SUCCESS);
 
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            //return false;
-                            //handler.sendEmptyMessage(StatusCode.FAIL);
+                    System.out.println("-------fromServer" + buffer.toString() + " ip=" + socket.getInetAddress().getHostAddress());
+
+                    //Log.d("fromServer", "" + buffer.toString() + " ip=" + socket.getInetAddress().getHostAddress());
+                    System.out.println("-------fromServer" + "" + buffer.toString() + " ip=" + socket.getInetAddress().getHostAddress());
+
+                    try {
+                        JSONObject msgJson = new JSONObject(buffer.toString());
+                        long info_id = msgJson.getLong("id");
+                        String from_id = msgJson.getString("from");
+                        String to_id = msgJson.getString("to");
+                        String msg = msgJson.getString("msg");
+                        String timeStr = msgJson.getString("time");
+
+                        if (info_id == -1) {
+                            handler.sendEmptyMessage(StatusCode.FAIL);
+                            continue;
                         }
-                        //return true;
+                        MyMessage myMessage = new MyMessage();
+                        myMessage.setInfoId(info_id);
+                        myMessage.setFrom(from_id);
+                        myMessage.setTo(to_id);
+                        myMessage.setMsg(msg);
+                        myMessage.setTime(timeStr);
+
+                        if (ip != null && from_id != null && from_id.equals(ip)) {
+                            myMessage.setType(1);
+                        } else {
+                            myMessage.setType(0);
+                        }
+
+//                        Map map = new HashMap();
+//                        map.put("content", msg);
+//                        if (ip != null && from_id !=null && from_id.equals(ip))
+//                            map.put("id", 1);
+//                        else
+//                            map.put("id", 0);
+//                        data.add(map);
+
+                        long local_id = MySQLiteUtil.insert((Activity) iView, myMessage); //插入到数据库里面
+                        System.out.println("-------local_id" + local_id);
+                        if (local_id == -1) {
+                            continue;
+                        }
+
+                        data.add(myMessage);
+                        handler.sendEmptyMessage(StatusCode.SUCCESS);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
+
+
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    //return false;
+                    //handler.sendEmptyMessage(StatusCode.FAIL);
                 }
+                //return true;
             }
-        }).start();
+        }
+    }
+
+    private int count = 0;
+
+    @Override
+    public String getFromIp() {
+        if (ip == null) return null;
+        return ip;
+        //return ip + "_"+(count++);
+    }
+
+    @Override
+    public void getLocalMsgs() {
+        List<MyMessage> msgs = MySQLiteUtil.query((Activity) iView);
+        if (msgs != null) {
+            for (int i = 0; i < msgs.size(); i++) {
+                data.add(msgs.get(i));
+            }
+        }
     }
 }

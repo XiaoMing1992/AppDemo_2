@@ -52,6 +52,7 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
         iPresenter = new PresenterComp(this);
         listView.setAdapter(iPresenter.getMyAdapter());
         iPresenter.getIp();
+        iPresenter.getLocalMsgs(); //获取存储在本地的聊天记录
         //ip.setText(iPresenter.getIp());
         iPresenter.getServerMsg(); //开启线程监听服务器发送来的信息
 
@@ -64,8 +65,10 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.send:
-                iPresenter.sengMsg(to_id.getText().toString().trim(), input.getText().toString().trim());
                 Log.d("client", input.getText().toString().trim());
+                System.out.println("client"+input.getText().toString().trim());
+                iPresenter.sengMsg(to_id.getText().toString().trim(), input.getText().toString().trim());
+
 //                boolean res = iPresenter.sengMsg(input.getText().toString().trim());
 //                if (res) {
 //                    iPresenter.clear();
@@ -77,11 +80,22 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onClearText() {
-        Toast.makeText(ClientActivity.this, input.getText().toString(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(ClientActivity.this, input.getText().toString(), Toast.LENGTH_SHORT).show();
+        input.setText("");
     }
 
     @Override
     public void getIp(String IP) {
         ip.setText(IP);
+    }
+
+    @Override
+    public boolean handleInput(String inputStr) {
+        if (inputStr == null || inputStr.isEmpty())
+        {
+            Toast.makeText(ClientActivity.this, "输入无效", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 }

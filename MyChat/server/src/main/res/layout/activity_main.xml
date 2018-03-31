@@ -24,6 +24,7 @@
         android:divider="@color/transparent"
         android:layout_below="@+id/left"
         android:layout_above="@+id/bottom"
+        android:dividerHeight="8dp"
         android:layout_marginBottom="5dp"
         ></ListView>
 

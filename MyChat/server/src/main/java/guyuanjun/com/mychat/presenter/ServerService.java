@@ -1,27 +1,17 @@
-package guyuanjun.com.mychat.view;
+package guyuanjun.com.mychat.presenter;
 
+import android.app.Service;
 import android.content.Intent;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
-
-import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -30,119 +20,49 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import guyuanjun.com.mychat.R;
-import guyuanjun.com.mychat.Utils;
-import guyuanjun.com.mychat.adapter.MyAdapter;
 import guyuanjun.com.mychat.model.MyMessage;
 import guyuanjun.com.mychat.model.MySQLiteUtil;
-import guyuanjun.com.mychat.presenter.Server;
-import guyuanjun.com.mychat.presenter.ServerService;
 
-public class MainActivity extends AppCompatActivity {
+/**
+ * Created by HP on 2018-3-30.
+ */
+
+public class ServerService extends Service {
 
     private ArrayList<Socket> mClientList = new ArrayList<Socket>(); //记录连接上服务器的客户端
     private ExecutorService mExecutorService;                             //创建线程池来管理
     private ArrayList<Map<String, String>> ips = new ArrayList<>(); //记录IP地址
 
-    private Button send;
-    private EditText input;
-    private Button left;
-    private Button right;
-    private ListView listView;
-    private MyAdapter myAdapter;
-    //private List<Map<String, ?>> data;
-    List<MyMessage> data;
-
-    private int i = 0;
-    private int j = 0;
-
-    private Handler handler = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case StatusCode.FAIL:
-
-                    break;
-
-                case StatusCode.SUCCESS:
-                    myAdapter.notifyDataSetChanged();
-                    break;
-            }
-        }
-    };
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        System.out.println("ServerService onCreate");
+        mExecutorService = Executors.newCachedThreadPool();
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        initView();
-        listener();
-        initData();
-        //insertData();
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        System.out.println("ServerService onStartCommand");
+        insertData(); //开启连接服务
+        return super.onStartCommand(intent, flags, startId);
     }
 
-    private void initView() {
-        input = (EditText) findViewById(R.id.input);
-        send = (Button) findViewById(R.id.send);
-        left = (Button) findViewById(R.id.left);
-        right = (Button) findViewById(R.id.right);
-        listView = (ListView) findViewById(R.id.content);
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
-    private void initData() {
-        left.setText("left" + Utils.getIPAddress(MainActivity.this));
-        right.setText("right" + Utils.getIPAddress(MainActivity.this));
-
-        data = new ArrayList<>();
-        myAdapter = new MyAdapter(MainActivity.this, data);
-        listView.setAdapter(myAdapter);
-
-        mExecutorService = Executors.newCachedThreadPool();
-
-        //开启服务，监听客户端的连接请求
-        Intent intent = new Intent();
-        intent.setClass(MainActivity.this, ServerService.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startService(intent);
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        System.out.println("ServerService onDestroy");
     }
 
-    private void listener() {
-//        left.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Map map = new HashMap();
-//                map.put("content", "leftleftleftleftleftleftleft" + (i++));
-//                map.put("id", 0);
-//                data.add(map);
-//                myAdapter.notifyDataSetChanged();
-//            }
-//        });
-//
-//        right.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Map map = new HashMap();
-//                map.put("content", "rightrightrightright" + (j++));
-//                map.put("id", 1);
-//                data.add(map);
-//                myAdapter.notifyDataSetChanged();
-//            }
-//        });
-
-        send.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
-    }
 
     private void insertData() {
         new Thread(new Runnable() {
@@ -293,6 +213,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             try {
+                if (mSocket == null || mSocket.isClosed() || !mSocket.isConnected()) return;
+
                 //BufferedInputStream in = new BufferedInputStream(socket.getInputStream());
                 InputStreamReader reader = new InputStreamReader(mSocket.getInputStream(), "utf-8");
                 BufferedReader bufferedReader = new BufferedReader(reader);
@@ -343,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
                 myMessage.setTo(to_id);
                 myMessage.setMsg(msg);
                 myMessage.setTime(timeStr);
-                long id = MySQLiteUtil.insert(MainActivity.this, myMessage); //插入到数据库里面
+                long id = MySQLiteUtil.insert(ServerService.this, myMessage); //插入到数据库里面
                 //if (id == -1) return;
 
 //                Map map = new HashMap();
@@ -351,8 +273,8 @@ public class MainActivity extends AppCompatActivity {
 //                map.put("id", 0);
 //                data.add(map);
 
-                data.add(myMessage);
-                handler.sendEmptyMessage(StatusCode.SUCCESS);
+                //data.add(myMessage);
+                //handler.sendEmptyMessage(StatusCode.SUCCESS);
 
                 Log.d("fromClient", timeStr+"from_id = " + from_id +" to_id = " + to_id + " msg=" + msg);
                 System.out.println("fromClient " +timeStr+ " from_id = " + from_id+" to_id = " + to_id + " msg=" + msg);
@@ -381,6 +303,9 @@ public class MainActivity extends AppCompatActivity {
                     out.flush();
                     out.close();
                     mSocket.close();
+
+                    mClientList.remove(mSocket); //移除已经关闭的socket
+
                     mSocket = null;
                     System.out.println("=======================  向from_id = " + from_id +" 写 msg=" + msg+" end");
                 }
@@ -418,7 +343,7 @@ public class MainActivity extends AppCompatActivity {
                                 Map my_ip_map = ips.get(j);
                                 Log.d("fromClient", "my_ip_map = " + my_ip_map.get("ip"));
                                 System.out.println("fromClient" + "my_ip_map = " + my_ip_map.get("ip"));
-                                if (to_id.equals(my_ip_map.get("ip"))) {
+                                if (to_id.equals(my_ip_map.get("ip")) && !from_id.equals(to_id)) {
 //                                    String[] arr_str = ((String) my_ip_map.get("ip")).split("_");
 //                                    if (arr_str.length <= 0) continue;
 //                                    if (!client.getInetAddress().getHostAddress().equals(arr_str[0])){
@@ -459,11 +384,16 @@ public class MainActivity extends AppCompatActivity {
                                     out.flush();
                                     out.close();
                                     client.close();
+
+                                    mClientList.remove(i); //移除已经关闭的socket
+                                    i = i > 0 ? (i - 1) : 0;
+
                                     client = null;
+                                    Log.d("toClient", " from_id = " + from_id +"to_id = " + to_id + "  msg=" + msg + "  end");
+                                    System.out.println("toClient" + " from_id = " + from_id +"to_id = " + to_id + "  msg=" + msg + "  end");
                                     break;
                                 }
-                                Log.d("toClient", " from_id = " + from_id +"to_id = " + to_id + "  msg=" + msg + "  end");
-                                System.out.println("toClient" + " from_id = " + from_id +"to_id = " + to_id + "  msg=" + msg + "  end");
+
 //
 //                                PrintWriter out = null;
 //                                out = new PrintWriter(new OutputStreamWriter(client.getOutputStream(), "utf-8"), true);
@@ -480,7 +410,11 @@ public class MainActivity extends AppCompatActivity {
 //                                System.out.println("toClient" + "to_id = " + to_id + "  msg=" + msg + "  end");
                                 //break;
                             }
+                        }else{
+                            mClientList.remove(i); //移除已经关闭的socket
+                            i = i > 0 ? (i - 1) : 0;
                         }
+
                         //}
                     }
                 } else {
@@ -510,9 +444,4 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-    }
 }

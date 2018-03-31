@@ -12,4 +12,6 @@ public interface IPresenter {
     MyAdapter getMyAdapter();
     void getIp();
     void getServerMsg();
+    String getFromIp();
+    void getLocalMsgs();
 }

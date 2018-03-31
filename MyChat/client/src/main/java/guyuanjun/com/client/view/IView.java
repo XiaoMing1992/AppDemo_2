@@ -7,4 +7,5 @@ package guyuanjun.com.client.view;
 public interface IView {
     void onClearText();
     void getIp(String IP);
+    boolean handleInput(String inputStr);
 }

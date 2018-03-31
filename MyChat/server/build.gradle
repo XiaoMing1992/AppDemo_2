@@ -5,8 +5,13 @@ android {
     buildToolsVersion "25.0.0"
     defaultConfig {
         applicationId "guyuanjun.com.mychat"
+<<<<<<< HEAD
         minSdkVersion 25
         targetSdkVersion 26
+=======
+        minSdkVersion 15
+        targetSdkVersion 25
+>>>>>>> 5c764ceccb50bf8b206e5086b84bf3d03a9d9edf
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
