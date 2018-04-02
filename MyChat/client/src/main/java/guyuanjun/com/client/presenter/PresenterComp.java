@@ -2,30 +2,23 @@ package guyuanjun.com.client.presenter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -33,7 +26,6 @@ import guyuanjun.com.client.Utils;
 import guyuanjun.com.client.adapter.MyAdapter;
 import guyuanjun.com.client.model.MyMessage;
 import guyuanjun.com.client.model.MySQLiteUtil;
-import guyuanjun.com.client.view.ClientActivity;
 import guyuanjun.com.client.view.IView;
 import guyuanjun.com.client.view.StatusCode;
 
@@ -43,7 +35,7 @@ import guyuanjun.com.client.view.StatusCode;
 
 public class PresenterComp implements IPresenter {
     IView iView;
-    Handler handler;
+    static Handler handler;
     boolean res = false;
     //List<Map<String, ?>> data;
     List<MyMessage> data;
@@ -52,6 +44,8 @@ public class PresenterComp implements IPresenter {
     ExecutorService mExecutorService;
     Socket socket = null;
     String ip = null;
+
+    MyBroadcastReceiver myBroadcastReceiver;
 
     public PresenterComp(final IView iView) {
         mExecutorService = Executors.newCachedThreadPool();
@@ -63,7 +57,8 @@ public class PresenterComp implements IPresenter {
                 switch (msg.what) {
                     case StatusCode.FAIL:
                         //setSendState(false);
-                        Toast.makeText((Activity) iView, "发送数据失败", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText((Activity) iView, "发送数据失败", Toast.LENGTH_SHORT).show();
+                        broadcastNetwork("发送数据失败");
                         break;
 
                     case StatusCode.SUCCESS:
@@ -72,16 +67,34 @@ public class PresenterComp implements IPresenter {
                         break;
 
                     case StatusCode.CONNECT_FAIL:
-                        Toast.makeText((Activity) iView, "连接服务器失败", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText((Activity) iView, "连接服务器失败", Toast.LENGTH_SHORT).show();
+                        broadcastNetwork("连接服务器失败");
                         break;
 
                     case StatusCode.CONNECT_SUCCESS:
-                        Toast.makeText((Activity) iView, "连接服务器成功", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText((Activity) iView, "连接服务器成功", Toast.LENGTH_SHORT).show();
+                        broadcastNetwork("连接服务器成功");
                         break;
 
                     case StatusCode.GET_IP_SUCCESS:
                         ip = (String) msg.obj;
                         returnIP(ip);
+                        break;
+
+
+                    case StatusCode.CONNECT_NETWORK_SUCCESS:
+                        getIp();
+                        if (Utils.getConnect())
+                            broadcastNetwork("网络连接成功");
+                        // if (getApplication() != null && getApplication().getApplicationContext()!=null)
+                        //Toast.makeText(((Activity) iView).getApplicationContext(), "网络连接成功", Toast.LENGTH_SHORT).show();
+                        break;
+                    case StatusCode.CONNECT_NETWORK_FAIL:
+                        getIp();
+                        if (!Utils.getConnect())
+                            broadcastNetwork("网络已经断开");
+                        //if (getApplication() != null && getApplication().getApplicationContext()!=null)
+                        //Toast.makeText(((Activity) iView).getApplicationContext(), "网络已经断开", Toast.LENGTH_SHORT).show();
                         break;
 
                 }
@@ -90,6 +103,13 @@ public class PresenterComp implements IPresenter {
 
         data = new ArrayList<>();
         myAdapter = new MyAdapter((Activity) iView, data);
+
+        myBroadcastReceiver = new MyBroadcastReceiver();
+        registerNetworkListener((Activity) iView);
+
+        getIp();
+        getLocalMsgs(); //获取存储在本地的聊天记录
+        getServerMsg(); //开启线程监听服务器发送来的信息
     }
 
     private void returnIP(final String ip) {
@@ -504,5 +524,34 @@ public class PresenterComp implements IPresenter {
                 data.add(msgs.get(i));
             }
         }
+    }
+
+    @Override
+    public void registerNetworkListener(Context context) {
+        System.out.println("------- 注册广播");
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        filter.addAction("android.net.wifi.WIFI_STATE_CHANGED");
+        filter.addAction("android.net.wifi.STATE_CHANGE");
+        context.registerReceiver(myBroadcastReceiver, filter);
+    }
+
+    @Override
+    public void unregisterNetworkListener(Context context) {
+        context.unregisterReceiver(myBroadcastReceiver);
+    }
+
+    //@Override
+    public void broadcastNetwork(String content) {
+
+        //String content = "";
+        //if (Utils.getConnect())
+        //iView.showInfo("网络连接成功");
+        //content = "网络连接成功";
+        //else
+        //iView.showInfo("网络没有连接");
+        //content = "网络没有连接";
+
+        iView.showInfo(content);
     }
 }

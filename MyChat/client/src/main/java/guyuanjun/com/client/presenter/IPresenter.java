@@ -1,5 +1,7 @@
 package guyuanjun.com.client.presenter;
 
+import android.content.Context;
+
 import guyuanjun.com.client.adapter.MyAdapter;
 
 /**
@@ -14,4 +16,7 @@ public interface IPresenter {
     void getServerMsg();
     String getFromIp();
     void getLocalMsgs();
+    void registerNetworkListener(Context context);
+    void unregisterNetworkListener(Context context);
+    //void broadcastNetwork();
 }

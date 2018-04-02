@@ -304,7 +304,7 @@ public class ServerService extends Service {
                     out.close();
                     mSocket.close();
 
-                    mClientList.remove(mSocket); //移除已经关闭的socket
+                    //mClientList.remove(mSocket); //移除已经关闭的socket
 
                     mSocket = null;
                     System.out.println("=======================  向from_id = " + from_id +" 写 msg=" + msg+" end");
@@ -315,24 +315,6 @@ public class ServerService extends Service {
                     System.out.println("size=" + mClientList.size());
                     for (int i = 0; i < mClientList.size(); i++) {
                         Socket client = mClientList.get(i);
-
-/*                        if (client != null && client.isConnected() && !client.isClosed()) {
-                            System.out.println("i=" + i + "client isClose=" + client.isClosed() + " isConnect=" + client.isConnected() + client.getInetAddress().getHostAddress());
-
-
-                            PrintWriter out = null;
-                            out = new PrintWriter(new OutputStreamWriter(client.getOutputStream(), "utf-8"), true);
-                            out.write(msg);
-                            //out.write(msg.getBytes());
-                            out.flush();
-                            out.close();
-                            client.close();
-                            client = null;
-                        }*/
-
-
-                        //for (Socket client : mClientList) {
-                        //if (flag) break;
 
                         if (client != null && client.isConnected() && !client.isClosed()) {
                             System.out.println("i=" + i + "client isClose=" + client.isClosed() + " isConnect=" + client.isConnected() + client.getInetAddress().getHostAddress());
@@ -385,8 +367,8 @@ public class ServerService extends Service {
                                     out.close();
                                     client.close();
 
-                                    mClientList.remove(i); //移除已经关闭的socket
-                                    i = i > 0 ? (i - 1) : 0;
+                                    //mClientList.remove(i); //移除已经关闭的socket
+                                    //i = i > 0 ? (i - 1) : 0;
 
                                     client = null;
                                     Log.d("toClient", " from_id = " + from_id +"to_id = " + to_id + "  msg=" + msg + "  end");
@@ -411,8 +393,8 @@ public class ServerService extends Service {
                                 //break;
                             }
                         }else{
-                            mClientList.remove(i); //移除已经关闭的socket
-                            i = i > 0 ? (i - 1) : 0;
+                            //mClientList.remove(i); //移除已经关闭的socket
+                            //i = i > 0 ? (i - 1) : 0;
                         }
 
                         //}

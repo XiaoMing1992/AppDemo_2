@@ -10,4 +10,6 @@ public class StatusCode {
     public final static int CONNECT_FAIL = 2;
     public final static int CONNECT_SUCCESS = 3;
     public final static int GET_IP_SUCCESS = 4;
+    public final static int CONNECT_NETWORK_FAIL = 5;
+    public final static int CONNECT_NETWORK_SUCCESS = 6;
 }

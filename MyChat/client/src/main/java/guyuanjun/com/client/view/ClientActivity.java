@@ -51,10 +51,10 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
     private void init(){
         iPresenter = new PresenterComp(this);
         listView.setAdapter(iPresenter.getMyAdapter());
-        iPresenter.getIp();
-        iPresenter.getLocalMsgs(); //获取存储在本地的聊天记录
+        //iPresenter.getIp();
+        //iPresenter.getLocalMsgs(); //获取存储在本地的聊天记录
         //ip.setText(iPresenter.getIp());
-        iPresenter.getServerMsg(); //开启线程监听服务器发送来的信息
+        //iPresenter.getServerMsg(); //开启线程监听服务器发送来的信息
 
 //        data = new ArrayList<>();
 //        myAdapter = new MyAdapter(ClientActivity.this, data);
@@ -97,5 +97,10 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void showInfo(final String content) {
+        Toast.makeText(ClientActivity.this, content, Toast.LENGTH_SHORT).show();
     }
 }

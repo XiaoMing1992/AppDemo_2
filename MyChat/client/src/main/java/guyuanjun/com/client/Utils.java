@@ -173,4 +173,29 @@ public class Utils {
                 ((ip >> 16) & 0xFF) + "." +
                 (ip >> 24 & 0xFF);
     }
+
+    private static boolean isMobile = false;
+    private static boolean isWifi = false;
+    private static boolean isConnect = false;
+
+    public static void setMobile(boolean state){
+        isMobile = state;
+    }
+    public static boolean getMobile(){
+        return isMobile;
+    }
+
+    public static void setWifi(boolean state){
+        isWifi = state;
+    }
+    public static boolean getWifi(){
+        return isWifi;
+    }
+
+    public static void setConnect(boolean state){
+        isConnect = state;
+    }
+    public static boolean getConnect(){
+        return isConnect;
+    }
 }

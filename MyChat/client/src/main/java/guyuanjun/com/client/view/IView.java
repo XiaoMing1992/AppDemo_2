@@ -8,4 +8,5 @@ public interface IView {
     void onClearText();
     void getIp(String IP);
     boolean handleInput(String inputStr);
+    void showInfo(final String content);
 }
