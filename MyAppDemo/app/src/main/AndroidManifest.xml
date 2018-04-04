@@ -410,6 +410,8 @@
         <activity android:name=".fragment.my.store.sale.SaleActivity" />
         <activity android:name=".fragment.my.store.tv.TVActivity" />
         <activity android:name=".fragment.my.store.bill.BillActivity"></activity>
+
+        <service android:name=".fragment.my.store.music.MusicService"/>
     </application>
 
 </manifest>
