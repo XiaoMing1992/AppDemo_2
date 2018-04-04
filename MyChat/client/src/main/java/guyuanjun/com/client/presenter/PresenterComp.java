@@ -334,7 +334,7 @@ public class PresenterComp implements IPresenter {
         @Override
         public void run() {
             Socket socket = Client.getInstance().getClientSocket();
-            if (socket != null) {
+            if (socket != null && !socket.isClosed() && !socket.isOutputShutdown()) {
                 System.out.println("client" + " ip=" + socket.getInetAddress().getHostAddress() + " 连接服务器成功");
                 Log.d("client", " ip=" + socket.getInetAddress().getHostAddress() + " 连接服务器成功");
                 //BufferedOutputStream out = null;
@@ -392,6 +392,14 @@ public class PresenterComp implements IPresenter {
                         //e.printStackTrace();
                         //}
                     }
+                    if (socket != null && !socket.isClosed()){
+                        try {
+                            socket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
                 }
                 //return true;
             } else {
@@ -412,24 +420,27 @@ public class PresenterComp implements IPresenter {
         @Override
         public void run() {
             while (true) {
+                InputStreamReader reader = null;
+                BufferedReader bufferedReader = null;
+                Socket socket = null;
                 try {
 
 //                        Map map = new HashMap();
 //                        map.put("content", "来自" + socket.getInetAddress() + "  " + msg);
 //                        map.put("id", 1);
 //                        data.add(map);
-                    Socket socket = Client.getInstance().getClientSocket();
+                    socket = Client.getInstance().getClientSocket();
                     Log.d("client", " ip=" + socket.getInetAddress().getHostAddress() + " 连接服务器成功");
                     System.out.println("-------client" + " ip=" + socket.getInetAddress().getHostAddress() + " 连接服务器成功");
 
                     System.out.println("-------fromServer" + " ip=" + socket.getInetAddress().getHostAddress());
 
-                    InputStreamReader reader = new InputStreamReader(socket.getInputStream(), "utf-8");
-                    BufferedReader bufferedReader = new BufferedReader(reader);
+                    reader = new InputStreamReader(socket.getInputStream(), "utf-8");
+                    bufferedReader = new BufferedReader(reader);
                     //byte[] b = new byte[4*1024];
                     StringBuffer buffer = new StringBuffer();
                     String str = null;
-                    while ((str = bufferedReader.readLine()) != null) {
+                    while (!socket.isClosed() && !socket.isInputShutdown() && (str = bufferedReader.readLine()) != null) {
                         System.out.println("str = " + str);//此时str就保存了一行字符串
                         buffer.append(str);
                     }
@@ -490,17 +501,34 @@ public class PresenterComp implements IPresenter {
                     }
 
 
-                    try {
+/*                    try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
-                    }
+                    }*/
 
 
                 } catch (IOException e) {
                     e.printStackTrace();
                     //return false;
                     //handler.sendEmptyMessage(StatusCode.FAIL);
+                }finally {
+                    try {
+                        if (reader != null)
+                            reader.close();
+                        if (bufferedReader != null)
+                        bufferedReader.close();
+                        if (socket!=null && !socket.isClosed())
+                            socket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
                 //return true;
             }
