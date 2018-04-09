@@ -86,6 +86,9 @@ public class MusicActivity extends AppCompatActivity implements View.OnClickList
                         if (animator.isPaused()) {
                             animator.start(); //开始动画
                             play.setImageResource(R.drawable.play);
+                        }else if(!animator.isRunning()){
+                            animator.start(); //开始动画
+                            play.setImageResource(R.drawable.play);
                         }
                         //}
                     }
@@ -229,15 +232,15 @@ public class MusicActivity extends AppCompatActivity implements View.OnClickList
         singer_name.setText(songs.get(currentPosition).getSinger());
         progress.setMax(songs.get(currentPosition).getDuration());
 
-        if (MusicService.isPlay()) {
-            if (animator.isPaused())
+/*        if (MusicService.isPlay()) {
+            if (!animator.isRunning())
                 animator.start(); //开始动画
             play.setImageResource(R.drawable.play);
         } else {
             if (animator.isRunning())
                 animator.pause();//暂停动画
             play.setImageResource(R.drawable.stop);
-        }
+        }*/
 
 
         //System.out.println("MusicService.getDuration() = "+MusicService.getDuration());
