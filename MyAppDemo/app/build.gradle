@@ -7,7 +7,7 @@ android {
     defaultConfig {
         multiDexEnabled true
         applicationId "guyuanjun.com.myappdemo"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 24
         versionCode 306
         versionName "3.0.6"

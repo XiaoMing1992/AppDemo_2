@@ -377,7 +377,10 @@ public class Utils {
         if (!strMinute.equals("00")) {
             strRsult += strMinute + ":";
         }
+
+        strRsult = strRsult.trim().length() == 0 ? "00:" : strRsult;
         strRsult += strSecond;
+
         return strRsult;
     }
 

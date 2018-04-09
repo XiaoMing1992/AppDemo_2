@@ -407,7 +407,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             firstTime = secondTime;
         } else {
             recordTime();
-            Process.killProcess(Process.myPid());
+            //Process.killProcess(Process.myPid());
 
             //System.exit(0);
 /*            int pid = android.os.Process.myPid();

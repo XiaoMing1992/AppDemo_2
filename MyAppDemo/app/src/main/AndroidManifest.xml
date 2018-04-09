@@ -411,7 +411,16 @@
         <activity android:name=".fragment.my.store.tv.TVActivity" />
         <activity android:name=".fragment.my.store.bill.BillActivity"></activity>
 
-        <service android:name=".fragment.my.store.music.MusicService"/>
+        <service
+            android:name=".fragment.my.store.music.MusicService"
+            android:exported="true">
+            <!--android:process=":mymusic">-->
+            <intent-filter>
+                <action android:name="guyuanjun.com.myappdemo.myservice" />
+            </intent-filter>
+        </service>
+
+        <!--<service android:name=".fragment.my.store.music.MusicActivity$MusicService2"/>-->
     </application>
 
 </manifest>

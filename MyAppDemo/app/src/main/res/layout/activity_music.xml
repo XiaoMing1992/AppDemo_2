@@ -5,7 +5,7 @@
     <RelativeLayout
         android:id="@+id/song_info"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="60dp"
         android:layout_alignParentTop="true"
         android:padding="5dp">
 
@@ -26,15 +26,32 @@
             android:textColor="@color/gray"
             android:textSize="10sp" />
 
+        <ImageView
+            android:id="@+id/music_foreground"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/music_foreground" />
     </RelativeLayout>
 
 
-    <guyuanjun.com.myappdemo.fragment.my.store.music.WordView
-        android:id="@+id/text"
+    <!--<guyuanjun.com.myappdemo.fragment.my.store.music.WordView-->
+    <!--android:id="@+id/text"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_above="@+id/progress_layout"-->
+    <!--android:layout_below="@+id/song_info" />-->
+
+    <ListView
+        android:id="@+id/song_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/progress_layout"
-        android:layout_below="@+id/song_info" />
+        android:layout_below="@+id/song_info"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp">
+
+    </ListView>
 
     <RelativeLayout
         android:id="@+id/progress_layout"
@@ -61,7 +78,12 @@
             android:layout_height="match_parent"
             android:layout_toLeftOf="@+id/total_pro"
             android:layout_toRightOf="@+id/cur_pro"
-            android:gravity="center_vertical" />
+            android:gravity="center_vertical"
+            android:max="100"
+            android:secondaryProgress="0"
+            android:progress="0"
+            android:indeterminate="false"
+            />
 
         <TextView
             android:id="@+id/total_pro"
