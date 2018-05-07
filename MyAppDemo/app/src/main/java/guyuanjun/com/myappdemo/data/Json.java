@@ -3,6 +3,8 @@ package guyuanjun.com.myappdemo.data;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
 
 import guyuanjun.com.myappdemo.utils.LogUtil;
 import okhttp3.Call;
@@ -59,6 +61,51 @@ public class Json {
             throw new IOException("Unexpected code " + response);
         }
     }
+
+    /**
+     * 通过post方式来提交json数据
+     * @param url
+     * @param data
+     * @return
+     */
+    public static String post(String url, Map<String, String> data) {
+        OkHttpClient client = new OkHttpClient();
+        FormBody.Builder builder = new FormBody.Builder();
+
+        Iterator it = data.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry entry = (Map.Entry) it.next();
+            String key = (String) entry.getKey();
+            String value = (String) entry.getValue();
+            System.out.println("key=" + key + " value=" + value);
+            builder.add(key, value);
+        }
+
+/*        RequestBody formBody = new FormBody.Builder()
+                .add("mobile", "13631257723")
+                .build();*/
+        RequestBody formBody = builder.build();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(formBody)
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            System.out.println("code="+response.code());
+
+            if (response.isSuccessful()) {
+                return response.body().string();
+            } else {
+                return null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     public static void asy_post_req(String url) throws IOException {
 

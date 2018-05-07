@@ -77,6 +77,23 @@ public class MyUtils {
     }
 
     /**
+     * 判断内容是否只是为数字或者字母
+     * @param content
+     * @return
+     */
+    public static boolean isDigitOrLetter(final String content){
+        if (content == null || content.isEmpty()) return false;
+        for (int i=0; i<content.length(); i++){
+            if (!((content.charAt(i)>='a'&&content.charAt(i)<='z')
+                    ||(content.charAt(i)>='A'&&content.charAt(i)<='Z')
+                    ||(content.charAt(i)>='0'&&content.charAt(i)<='9'))){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * 正则表达式判断手机号
      * @param mobiles
      * @return
