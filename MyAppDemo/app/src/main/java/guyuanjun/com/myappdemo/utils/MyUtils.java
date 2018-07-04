@@ -99,7 +99,7 @@ public class MyUtils {
      * @return
      */
     public static boolean isMobileNO(String mobiles){
-        Pattern p = Pattern.compile("^((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$");
+        Pattern p = Pattern.compile("^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$");
         Matcher m = p.matcher(mobiles);
         return m.matches();
     }
